@@ -1,0 +1,14 @@
+services:
+  node-app:
+    build:
+      context: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      # local:remote  (lokal-dator:container)
+      - "4000:4000"
+    environment:
+      # lägg hit ENV-variabler som containern ska se
+      - MODE
+      - JWT_SECRET
