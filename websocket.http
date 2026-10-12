@@ -1,0 +1,11 @@
+# REST Client extension: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+@API_URL = http://localhost:4000
+@WS_URL = ws://localhost:4000
+@DEV_TOKEN = {{$dotenv DEV_TOKEN}}
+
+### Check that the server is running
+GET {{API_URL}}
+
+# REST Client does not support interactive WebSocket connections.
+# Run `npm run test:websocket` to test the authenticated WebSocket server.

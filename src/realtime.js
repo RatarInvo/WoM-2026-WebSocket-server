@@ -2,81 +2,33 @@
 
 const { WebSocketServer, WebSocket } = require('ws')
 const jwt = require('jsonwebtoken')
-const { findBoard } = require('./store')
 
 const rooms = new Map()
 
 function leaveRoom(socket) {
-    const room = rooms.get(socket.boardId)
+    const room = rooms.get(socket.userId)
 
     if (room) {
         room.delete(socket)
         if (room.size === 0) {
-            rooms.delete(socket.boardId)
+            rooms.delete(socket.userId)
         }
     }
-    socket.boardId = null
 }
 
-function broadcast(boardId, message, exceptSocket = null) {
-    const room = rooms.get(boardId)
+function broadcast(userId, message) {
+    const room = rooms.get(userId)
 
     if (!room) {
         return
     }
 
-    const data = JSON.stringify({ ...message, board_id: boardId })
+    const data = JSON.stringify(message)
 
     for (const client of room) {
-        if (client !== exceptSocket && client.readyState === WebSocket.OPEN) {
+        if (client.readyState === WebSocket.OPEN) {
             client.send(data)
         }
-    }
-}
-
-const toNumber = (value) => Number.isFinite(Number(value)) ? Math.round(Number(value)) : undefined
-
-async function handleMessage(socket, message) {
-    if (message.type === 'join') {
-        const boardId = Number(message.board_id)
-
-        const board = findBoard(boardId, socket.user.sub)
-
-        leaveRoom(socket)
-
-        if (!board) {
-            return
-        }
-
-        socket.boardId = boardId
-        if (!rooms.has(boardId)) {
-            rooms.set(boardId, new Set())
-        }
-        rooms.get(boardId).add(socket)
-        return
-    }
-
-    if (!socket.boardId) {
-        return
-    }
-
-    if (message.type === 'note_moving') {
-        broadcast(socket.boardId, {
-            type: 'note_moving',
-            id: toNumber(message.id),
-            x: toNumber(message.x),
-            y: toNumber(message.y),
-            width: toNumber(message.width),
-            height: toNumber(message.height)
-        }, socket)
-    }
-
-    if (message.type === 'note_typing' && typeof message.content === 'string') {
-        broadcast(socket.boardId, {
-            type: 'note_typing',
-            id: toNumber(message.id),
-            content: message.content.slice(0, 5000)
-        }, socket)
     }
 }
 
@@ -92,11 +44,19 @@ function setupRealtime(server) {
             return socket.close(4001, 'Authorization failed')
         }
 
-        socket.boardId = null
+        if (socket.user.sub === undefined || socket.user.sub === null) {
+            return socket.close(4001, 'Authorization failed')
+        }
+
+        socket.userId = String(socket.user.sub)
+        if (!rooms.has(socket.userId)) {
+            rooms.set(socket.userId, new Set())
+        }
+        rooms.get(socket.userId).add(socket)
 
         socket.on('message', async (raw) => {
             try {
-                await handleMessage(socket, JSON.parse(raw))
+                broadcast(socket.userId, JSON.parse(raw))
             } catch (error) {
                 console.log(`WebSocket message failed: ${error.message}`)
             }

@@ -1,4 +1,5 @@
 # Websocket API
 
-Board and note data is kept in memory while the server is running. Restarting the
-server clears all boards and notes; no database or `DATABASE_URL` is required.
+This project provides a JWT-authorized WebSocket server. Each message is broadcast
+to all active connections belonging to the same authenticated user. No database is
+required.

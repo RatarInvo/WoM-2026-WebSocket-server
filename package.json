@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:websocket": "node test-websocket.js",
     "start": "node src/server.js",
     "dev": "nodemon -L src/server.js"
   },
@@ -19,7 +20,6 @@
   },
   "homepage": "https://github.com/RatarInvo/WoM-2026-WebSocket-server#readme",
   "dependencies": {
-    "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
