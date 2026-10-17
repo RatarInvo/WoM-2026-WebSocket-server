@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:websocket": "node test-websocket.js",
+    "token": "node scripts/token.js",
     "start": "node src/server.js",
     "dev": "nodemon -L src/server.js"
   },

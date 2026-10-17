@@ -3,9 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebSocket Pastebin</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body>
-    WebSocket server is running. You can connect to it using a WebSocket client.
+    <button id="settings-button" class="icon-button" type="button" aria-label="Settings">
+        <i class="bi bi-gear-fill" aria-hidden="true"></i>
+    </button>
+
+    <main class="card">
+        <h1>WebSocket Pastebin</h1>
+        <textarea id="paste" rows="1" placeholder="Paste text here" aria-label="Paste text"></textarea>
+        <div id="log" class="log" aria-live="polite"></div>
+        <div class="status-row">
+            <span id="status" class="status">Not connected</span>
+            <button id="reconnect" type="button" hidden>Reconnect</button>
+        </div>
+    </main>
+
+    <dialog id="settings">
+        <form id="settings-form" method="dialog">
+            <h2>Log in</h2>
+            <p id="settings-message" class="settings-message" hidden></p>
+            <label for="token">JWT</label>
+            <textarea id="token" rows="4" placeholder="Paste your JWT here" required></textarea>
+            <label for="server">Server URL</label>
+            <input id="server" type="text" placeholder="ws://localhost:4000">
+            <div class="dialog-buttons">
+                <button id="logout" type="button" class="secondary">Log out</button>
+                <button id="close-settings" type="button" class="secondary">Cancel</button>
+                <button type="submit">Save and connect</button>
+            </div>
+        </form>
+    </dialog>
+
+    <script src="app.js"></script>
 </body>
 </html>

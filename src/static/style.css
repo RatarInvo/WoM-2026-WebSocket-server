@@ -1,0 +1,157 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 28px 20px;
+    font-family: Verdana, system-ui, sans-serif;
+    background: #fff;
+    color: #222;
+}
+
+.card {
+    width: 100%;
+    max-width: 320px;
+    padding: 10px 12px;
+    background: #3fd5f2;
+    border: 1px solid #2bb4d0;
+    border-radius: 4px;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 400;
+}
+
+textarea, input {
+    width: 100%;
+    font: inherit;
+    border: 1px solid #cfeef5;
+    border-radius: 6px;
+    background: #fff;
+    color: #222;
+}
+
+#paste {
+    display: block;
+    padding: 6px 8px;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.log {
+    height: 112px;
+    margin-top: 6px;
+    padding: 10px 12px;
+    overflow-y: auto;
+    font-size: 11px;
+    font-weight: 300;
+    background: #fff;
+    border-radius: 6px;
+}
+
+.log p {
+    margin: 0 0 4px;
+}
+
+.status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 24px;
+    margin-top: 2px;
+}
+
+.status {
+    font-size: 13px;
+    font-style: italic;
+    font-weight: 300;
+    color: #2a5560;
+}
+
+.status.open {
+    color: #1f4b55;
+}
+
+.status.closed {
+    color: #8a1c1c;
+}
+
+button {
+    padding: 3px 10px;
+    font: inherit;
+    font-size: 12px;
+    color: #fff;
+    background: #1f7f93;
+    border: 0;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button.secondary {
+    color: #1f4b55;
+    background: #e6f7fb;
+}
+
+.icon-button {
+    position: fixed;
+    top: 6px;
+    right: 6px;
+    padding: 4px;
+    font-size: 20px;
+    line-height: 1;
+    color: #555;
+    background: none;
+}
+
+dialog {
+    width: min(360px, calc(100% - 32px));
+    padding: 16px;
+    border: 1px solid #2bb4d0;
+    border-radius: 6px;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+dialog h2 {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+dialog label {
+    display: block;
+    margin: 10px 0 4px;
+    font-size: 12px;
+}
+
+dialog textarea, dialog input {
+    padding: 6px 8px;
+    font-size: 12px;
+    border-color: #9bd9e6;
+}
+
+#token {
+    font-family: monospace;
+    word-break: break-all;
+}
+
+.settings-message {
+    margin: 0 0 6px;
+    padding: 6px 8px;
+    font-size: 12px;
+    background: #fff4d6;
+    border-radius: 4px;
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 14px;
+}

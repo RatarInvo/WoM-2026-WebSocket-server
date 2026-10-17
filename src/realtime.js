@@ -16,27 +16,31 @@ function leaveRoom(socket) {
     }
 }
 
-function broadcast(userId, message) {
+function broadcast(userId, message, sender) {
     const room = rooms.get(userId)
 
     if (!room) {
-        return
+        return 0
     }
 
     const data = JSON.stringify(message)
+    let count = 0
 
     for (const client of room) {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client !== sender && client.readyState === WebSocket.OPEN) {
             client.send(data)
+            count++
         }
     }
+
+    return count
 }
 
 function setupRealtime(server) {
     const wss = new WebSocketServer({ server })
 
     wss.on('connection', (socket, req) => {
-        const token = new URL(req.url, 'https://people.arcada.fi/~berglual/').searchParams.get('token')
+        const token = new URL(req.url, 'http://localhost').searchParams.get('token')
 
         try {
             socket.user = jwt.verify(token, process.env.JWT_SECRET)
@@ -54,9 +58,10 @@ function setupRealtime(server) {
         }
         rooms.get(socket.userId).add(socket)
 
-        socket.on('message', async (raw) => {
+        socket.on('message', (raw) => {
             try {
-                broadcast(socket.userId, JSON.parse(raw))
+                const clients = broadcast(socket.userId, JSON.parse(raw), socket)
+                socket.send(JSON.stringify({ type: 'ack', clients }))
             } catch (error) {
                 console.log(`WebSocket message failed: ${error.message}`)
             }

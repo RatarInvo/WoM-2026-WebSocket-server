@@ -35,8 +35,12 @@ async function run() {
     second.close()
     otherUser.close()
 
-    if (receivedByFirst[0] !== message || receivedBySecond[0] !== message) {
+    if (receivedBySecond[0] !== message) {
         throw new Error('Message was not delivered to every connection for the same user')
+    }
+
+    if (receivedByFirst[0] !== JSON.stringify({ type: 'ack', clients: 1 })) {
+        throw new Error('Sender did not get an acknowledgement with the client count')
     }
 
     if (receivedByOtherUser.length !== 0) {
