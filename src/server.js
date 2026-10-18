@@ -17,8 +17,6 @@ app.use(cors({
 
 app.use(express.json())
 
-app.use('/', express.static(__dirname + '/static'))
-
 const { setupRealtime } = require('./realtime')
 
 const server = app.listen(PORT, () => {
