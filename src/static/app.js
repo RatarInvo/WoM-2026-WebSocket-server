@@ -1,5 +1,8 @@
 const TOKEN_KEY = 'pastebin.token'
+const REFRESH_TOKEN_KEY = 'pastebin.refresh-token'
 const SERVER_KEY = 'pastebin.server'
+
+const LOGIN_API_URL = 'https://wom-2026-login.onrender.com'
 
 const pasteInput = document.getElementById('paste')
 const logBox = document.getElementById('log')
@@ -13,9 +16,78 @@ const serverInput = document.getElementById('server')
 
 let socket = null
 
+async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem(
+        REFRESH_TOKEN_KEY
+    )
+
+    if (!refreshToken) {
+        return false
+    }
+
+    const response = await fetch(
+        `${LOGIN_API_URL}/refresh`,
+        {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${refreshToken}`
+            }
+        }
+    )
+
+    if (!response.ok) {
+        return false
+    }
+
+    const data = await response.json()
+
+    if (!data.accessToken) {
+        return false
+    }
+
+    localStorage.setItem(TOKEN_KEY, data.accessToken)
+
+    return true
+}
+
+async function logout() {
+    const refreshToken = localStorage.getItem(
+        REFRESH_TOKEN_KEY
+    )
+
+    if (refreshToken) {
+        try {
+            await fetch(
+                `${LOGIN_API_URL}/refresh`,
+                {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: `Bearer ${refreshToken}`
+                    }
+                }
+            )
+        } catch (error) {
+            console.error('Logout request failed:', error)
+        }
+    }
+
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(REFRESH_TOKEN_KEY)
+
+    if (socket) {
+        socket.onclose = null
+        socket.close()
+        socket = null
+    }
+
+    setStatus('Not logged in', 'closed')
+
+    tokenInput.value = ''
+}
+
 function defaultServerUrl() {
     if (location.protocol === 'file:') {
-        return 'ws://localhost:4000'
+        return 'ws://localhost:3000'
     }
     return `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}`
 }
@@ -97,16 +169,52 @@ function connect() {
         }
     }
 
-    socket.onclose = (event) => {
-        socket = null
+socket.onclose = async (event) => {
+    socket = null
 
-        if (event.code === 4001) {
-            setStatus('Not authorized', 'closed')
-            openSettings('Your session has expired or the JWT is invalid. Paste a new JWT to log in again.')
+    if (
+        event.code === 4001 &&
+        event.reason === 'ACCESS_TOKEN_EXPIRED'
+    ) {
+        setStatus(
+            'Session expired, refreshing...',
+            'connecting'
+        )
+
+        const refreshed = await refreshAccessToken()
+
+        if (refreshed) {
+            log('Access token refreshed')
+            connect()
         } else {
-            setStatus('Disconnected from server', 'closed')
+            setStatus(
+                'Session expired',
+                'closed'
+            )
+
+            openSettings(
+                'Your session has expired. Please log in again.'
+            )
         }
+
+        return
     }
+
+    if (event.code === 4001) {
+        setStatus('Not authorized', 'closed')
+
+        openSettings(
+            'Your access token is invalid. Please log in again.'
+        )
+
+        return
+    }
+
+    setStatus(
+        'Disconnected from server',
+        'closed'
+    )
+}
 }
 
 function send(text) {
@@ -139,16 +247,10 @@ document.getElementById('settings-button').addEventListener('click', () => openS
 
 document.getElementById('close-settings').addEventListener('click', () => settingsDialog.close())
 
-document.getElementById('logout').addEventListener('click', () => {
-    localStorage.removeItem(TOKEN_KEY)
-    if (socket) {
-        socket.onclose = null
-        socket.close()
-        socket = null
-    }
-    setStatus('Not logged in', 'closed')
-    tokenInput.value = ''
-})
+document.getElementById('logout').addEventListener(
+    'click',
+    logout
+)
 
 settingsForm.addEventListener('submit', (event) => {
     event.preventDefault()
