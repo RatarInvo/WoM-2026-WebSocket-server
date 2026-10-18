@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WoM-2026 WebSocket API documentation.">
+    <title>WebSocket API | Documentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <style>
+        :root { --bg: #0d0f14; --card: #171a21; --border: #262b35; --input: #1e222b; --text: #e8eaed; --muted: #8a92a3; --accent: #6c8eef; --hover: #5578e0; --green: #76d49a; --red: #ef7774; --shadow: 0 12px 30px rgba(0,0,0,.24); }
+        :root[data-theme="light"] { --bg: #f4f6fa; --card: #fff; --border: #d9dee8; --input: #eef1f7; --text: #1b1f27; --muted: #5e6779; --accent: #3f63d6; --hover: #3354bd; --green: #25864d; --red: #c13632; --shadow: 0 12px 30px rgba(27,31,39,.11); }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; color: var(--text); background: var(--bg); font: 16px/1.6 "Inter", system-ui, sans-serif; }
+        body:before { content: ""; position: fixed; inset: 0; z-index: -1; opacity: .45; pointer-events: none; background-image: radial-gradient(var(--border) 1px, transparent 1px); background-size: 24px 24px; }
+        a { color: var(--accent); text-decoration: none; } a:hover { color: var(--hover); }
+        code, pre { font-family: "SFMono-Regular", Consolas, monospace; } code { color: var(--accent); font-size: .92em; }
+        .topbar { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 14px max(24px, calc((100% - 1180px) / 2)); min-height: 70px; background: color-mix(in srgb, var(--card) 92%, transparent); border-bottom: 1px solid var(--border); backdrop-filter: blur(14px); }
+        .brand { display: flex; align-items: center; gap: 11px; color: var(--text); font-weight: 700; } .mark { display: grid; place-items: center; width: 32px; height: 32px; color: #fff; background: var(--accent); border-radius: 9px; box-shadow: 0 5px 14px #6c8eef4d; } .brand small { display: block; color: var(--muted); font-size: .69rem; font-weight: 500; }
+        nav { display: flex; align-items: center; gap: 24px; font-size: .86rem; } nav a { color: var(--muted); }
+        .theme { width: 36px; height: 36px; border: 1px solid var(--border); border-radius: 8px; color: var(--muted); background: var(--input); cursor: pointer; font-size: .8rem; } .theme:hover { color: var(--text); border-color: var(--accent); }
+        .layout { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 64px; width: min(1180px, calc(100% - 48px)); margin: auto; }
+        aside { position: sticky; top: 95px; align-self: start; padding-top: 42px; } aside h2 { margin: 0 0 14px; color: var(--muted); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; } aside a { display: block; padding: 6px 0 6px 13px; border-left: 1px solid var(--border); color: var(--muted); font-size: .84rem; } aside a:hover { border-color: var(--accent); color: var(--text); }
+        main { min-width: 0; padding: 76px 0 100px; } .eyebrow { margin: 0 0 12px; color: var(--accent); font-size: .75rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; } h1 { margin: 0; max-width: 750px; font-size: clamp(2.5rem, 6vw, 4.5rem); letter-spacing: -.055em; line-height: 1.04; } .lead { max-width: 650px; margin: 24px 0 30px; color: var(--muted); font-size: 1.08rem; }
+        .base { display: inline-flex; align-items: center; gap: 9px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); font-size: .82rem; } .base i { width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+        section { margin-top: 94px; scroll-margin-top: 95px; } .heading { display: flex; align-items: baseline; gap: 14px; margin-bottom: 24px; } .heading h2 { margin: 0; font-size: 1.65rem; letter-spacing: -.03em; } .heading p { margin: 0; color: var(--muted); font-size: .9rem; }
+        .card { overflow: hidden; background: var(--card); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); } .info { padding: 22px; } .info h3 { margin: 0 0 8px; font-size: 1rem; } .info p { margin: 0; color: var(--muted); font-size: .88rem; }
+        .endpoint { margin-bottom: 18px; } .endpoint-head { display: flex; align-items: center; gap: 11px; padding: 17px 20px; border-bottom: 1px solid var(--border); } .method { min-width: 64px; padding: 4px 8px; border-radius: 5px; color: #fff; font-size: .7rem; font-weight: 800; text-align: center; } .connect { background: #3678b9; } .message { background: #25864d; }
+        .path { font-family: monospace; font-size: .95rem; font-weight: 600; } .summary { margin-left: auto; color: var(--muted); font-size: .8rem; } .endpoint-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .9fr); gap: 24px; padding: 20px; } .endpoint-body h4 { margin: 0 0 9px; color: var(--muted); font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; } .endpoint-body p { margin: 0 0 14px; color: var(--muted); font-size: .87rem; }
+        pre { position: relative; margin: 0; padding: 17px; overflow: auto; color: #d9e2f2; background: #11141a; border: 1px solid var(--border); border-radius: 8px; font-size: .78rem; line-height: 1.65; } :root[data-theme="light"] pre { color: #33415c; background: #f0f3f9; } .copy { position: absolute; top: 8px; right: 8px; padding: 4px 8px; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); background: var(--card); cursor: pointer; font-size: .68rem; } .copy:hover { color: var(--text); border-color: var(--accent); } .key { color: #91a9ff; } .string { color: #9bdbb1; } :root[data-theme="light"] .key { color: #385ab9; } :root[data-theme="light"] .string { color: #25864d; }
+        .status { display: inline-block; margin: 12px 0 0; padding: 3px 7px; border-radius: 4px; background: var(--input); color: var(--muted); font-size: .72rem; font-weight: 600; } .ok { color: var(--green); } .error { color: var(--red); }
+        table { width: 100%; border-collapse: collapse; font-size: .84rem; } th, td { padding: 13px 16px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; } th { color: var(--muted); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; } tr:last-child td { border: 0; } td:first-child { font-weight: 600; white-space: nowrap; } td:not(:first-child) { color: var(--muted); }
+        .note { margin-top: 18px; padding: 16px 18px; border-left: 3px solid var(--accent); background: var(--card); color: var(--muted); font-size: .84rem; } footer { padding-top: 35px; color: var(--muted); font-size: .8rem; }
+        @media (max-width: 850px) { .layout { display: block; } aside { display: none; } main { padding-top: 52px; } .endpoint-body { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { .topbar { padding: 12px 16px; } nav { display: none; } .layout { width: calc(100% - 32px); } h1 { font-size: 2.65rem; } .summary { width: 100%; margin-left: 0; } .endpoint-head { flex-wrap: wrap; } }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="#top"><span class="mark">W</span><span>WoM WebSocket <small>API documentation</small></span></a>
+        <nav aria-label="Primary navigation"><a href="#quickstart">Quick start</a><a href="#connection">Connection</a><a href="#messages">Messages</a><button class="theme" id="theme" type="button" aria-label="Switch to light mode">Theme</button></nav>
+    </header>
+    <div class="layout" id="top">
+        <aside><h2>On this page</h2><a href="#quickstart">Quick start</a><a href="#connection">Connection</a><a href="#messages">Messages</a><a href="#errors">Close codes</a></aside>
+        <main>
+            <p class="eyebrow">JWT-authorized realtime service</p>
+            <h1>Broadcast messages to the right user, instantly.</h1>
+            <p class="lead">Open an authenticated WebSocket connection and share JSON messages with every active connection belonging to the same user.</p>
+            <div class="base"><i></i><code>ws://localhost:4000/?token=&lt;your-jwt&gt;</code></div>
+            <section id="quickstart"><div class="heading"><h2>Quick start</h2><p>One token, one connection.</p></div><div class="card info"><h3>Authenticate with the Login API token</h3><p>Sign a JWT containing a <code>sub</code> claim with the shared <code>JWT_SECRET</code>. Pass it as the <code>token</code> query parameter when opening the connection. Connections with the same subject share a private broadcast room.</p></div></section>
+            <section id="connection"><div class="heading"><h2>Connection</h2><p>Open a secure user room.</p></div><article class="card endpoint"><div class="endpoint-head"><span class="method connect">CONNECT</span><span class="path">/?token=&lt;jwt&gt;</span><span class="summary">Authenticate a socket</span></div><div class="endpoint-body"><div><h4>JavaScript</h4><p>The server validates the token and adds the connection to the room identified by <code>sub</code>.</p><pre><button class="copy" type="button">Copy</button><code>const socket = new WebSocket(
+  <span class="string">'wss://your-host.example/?token='</span> + token
+)
+
+socket.addEventListener(<span class="string">'message'</span>, (event) =&gt; {
+  console.log(JSON.parse(event.data))
+})</code></pre></div><div><h4>Accepted token</h4><pre><button class="copy" type="button">Copy</button><code>{ <span class="key">"sub"</span>: <span class="string">"user-uuid"</span> }</code></pre><span class="status ok">Connection accepted</span><span class="status error">4001 on failure</span></div></div></article></section>
+            <section id="messages"><div class="heading"><h2>Messages</h2><p>JSON in, JSON out.</p></div><article class="card endpoint"><div class="endpoint-head"><span class="method message">SEND</span><span class="path">client to server</span><span class="summary">Broadcast a JSON message</span></div><div class="endpoint-body"><div><h4>Request</h4><p>Send any valid JSON value. The sender does not receive its own message.</p><pre><button class="copy" type="button">Copy</button><code>{
+  <span class="key">"type"</span>: <span class="string">"note.updated"</span>,
+  <span class="key">"message"</span>: <span class="string">"Hello from the client"</span>
+}</code></pre></div><div><h4>Broadcast</h4><p>Every other open connection with the same JWT <code>sub</code> receives the original JSON unchanged.</p><pre><button class="copy" type="button">Copy</button><code>{
+  <span class="key">"type"</span>: <span class="string">"note.updated"</span>,
+  <span class="key">"message"</span>: <span class="string">"Hello from the client"</span>
+}</code></pre></div></div></article><article class="card endpoint"><div class="endpoint-head"><span class="method message">ACK</span><span class="path">server to sender</span><span class="summary">Report delivery count</span></div><div class="endpoint-body"><div><h4>Successful response</h4><p>The sender receives an acknowledgement after the message is broadcast.</p><pre><button class="copy" type="button">Copy</button><code>{ <span class="key">"type"</span>: <span class="string">"ack"</span>, <span class="key">"clients"</span>: 2 }</code></pre></div><div><h4>Invalid JSON</h4><p>Malformed JSON is rejected without closing the connection.</p><pre><button class="copy" type="button">Copy</button><code>{ <span class="key">"type"</span>: <span class="string">"error"</span>, <span class="key">"message"</span>: <span class="string">"Invalid JSON message"</span> }</code></pre></div></div></article></section>
+            <section id="errors"><div class="heading"><h2>Close codes</h2><p>Authentication failures are explicit.</p></div><div class="card"><table><thead><tr><th>Code</th><th>Meaning</th><th>When it happens</th></tr></thead><tbody><tr><td>4001</td><td>ACCESS_TOKEN_MISSING</td><td>The connection has no <code>token</code> query parameter.</td></tr><tr><td>4001</td><td>ACCESS_TOKEN_EXPIRED</td><td>The JWT has expired.</td></tr><tr><td>4001</td><td>ACCESS_TOKEN_INVALID</td><td>The JWT is invalid or has no <code>sub</code> claim.</td></tr><tr><td>403</td><td>Origin not allowed</td><td>The request origin does not match <code>FRONTEND_ORIGIN</code>.</td></tr></tbody></table></div><div class="note">Keep <code>JWT_SECRET</code> identical between the Login API and this service. Never expose it in browser code or commit real environment credentials.</div></section>
+            <footer>WoM-2026 WebSocket API - JWT-authenticated realtime messaging.</footer>
+        </main>
+    </div>
+    <script>
+        const root = document.documentElement
+        const button = document.getElementById('theme')
+        const saved = localStorage.getItem('websocket-api-theme')
+        if (saved) root.dataset.theme = saved
+        function updateTheme() {
+            const light = root.dataset.theme === 'light'
+            button.textContent = light ? 'Dark' : 'Light'
+            button.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode')
+        }
+        updateTheme()
+        button.addEventListener('click', () => {
+            const next = root.dataset.theme === 'light' ? 'dark' : 'light'
+            root.dataset.theme = next
+            localStorage.setItem('websocket-api-theme', next)
+            updateTheme()
+        })
+        document.querySelectorAll('.copy').forEach((copy) => copy.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(copy.parentElement.querySelector('code').innerText)
+                copy.textContent = 'Copied'
+                setTimeout(() => { copy.textContent = 'Copy' }, 1200)
+            } catch { copy.textContent = 'Select text' }
+        }))
+    </script>
+</body>
+</html>
