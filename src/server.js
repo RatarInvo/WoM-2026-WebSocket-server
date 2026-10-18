@@ -5,14 +5,12 @@ require('dotenv').config()
 
 const app = express()
 const PORT = process.env.PORT || 4000
-const allowedOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:3000'
-
-if (!allowedOrigin) {
-    throw new Error('FRONTEND_ORIGIN is missing')
-}
+const allowedOrigin = process.env.FRONTEND_ORIGIN || 'http://localhost:5500'
 
 app.use(cors({
-    origin: allowedOrigin
+    origin: allowedOrigin,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
 app.use(express.json())
@@ -20,7 +18,9 @@ app.use(express.json())
 const { setupRealtime } = require('./realtime')
 
 const server = app.listen(PORT, () => {
-    console.log(`Running on ${PORT}`)
+    console.log(
+        `WebSocket server running on ws://localhost:${PORT}`
+    )
 })
 
 setupRealtime(server)

@@ -12,3 +12,9 @@ services:
       # lägg hit ENV-variabler som containern ska se
       - MODE
       - JWT_SECRET
+      - PORT
+      - FRONTEND_ORIGIN
+      - ACCESS_TOKEN_EXPIRES_IN
+      - REFRESH_TOKEN_DAYS
+      - DEV_TOKEN
+

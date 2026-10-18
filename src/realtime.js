@@ -6,12 +6,14 @@ const rooms = new Map()
 function leaveRoom(socket) {
     const room = rooms.get(socket.userId)
 
-    if (room) {
-        room.delete(socket)
+    if (!room) {
+        return
+    }
 
-        if (room.size === 0) {
-            rooms.delete(socket.userId)
-        }
+    room.delete(socket)
+
+    if (room.size === 0) {
+        rooms.delete(socket.userId)
     }
 }
 
@@ -39,14 +41,19 @@ function broadcast(userId, message, sender) {
 }
 
 function setupRealtime(server) {
+    const allowedOrigin =
+        process.env.FRONTEND_ORIGIN ||
+        'http://localhost:5500'
+
     const wss = new WebSocketServer({
         server,
         verifyClient: ({ origin }, done) => {
-            console.log('Browser origin:', origin)
-            console.log('Allowed origin:', process.env.FRONTEND_ORIGIN)
-
-            if (origin !== process.env.FRONTEND_ORIGIN) {
-                done(false, 403, 'Origin not allowed')
+            if (origin !== allowedOrigin) {
+                done(
+                    false,
+                    403,
+                    'Origin not allowed'
+                )
                 return
             }
 
@@ -55,60 +62,78 @@ function setupRealtime(server) {
     })
 
     wss.on('connection', (socket, req) => {
-        const token = new URL(
+        const requestUrl = new URL(
             req.url,
             'http://localhost'
-        ).searchParams.get('token')
+        )
+
+        const token = requestUrl.searchParams.get(
+            'token'
+        )
 
         if (!token) {
-            return socket.close(
+            socket.close(
                 4001,
                 'ACCESS_TOKEN_MISSING'
             )
+            return
         }
 
+        let user
+
         try {
-            socket.user = jwt.verify(
+            user = jwt.verify(
                 token,
                 process.env.JWT_SECRET
             )
         } catch (error) {
             if (error.name === 'TokenExpiredError') {
-                return socket.close(
+                socket.close(
                     4001,
                     'ACCESS_TOKEN_EXPIRED'
                 )
+                return
             }
 
-            return socket.close(
+            socket.close(
                 4001,
                 'ACCESS_TOKEN_INVALID'
             )
+            return
         }
 
         if (
-            socket.user.sub === undefined ||
-            socket.user.sub === null
+            user.sub === undefined ||
+            user.sub === null
         ) {
-            return socket.close(
+            socket.close(
                 4001,
                 'ACCESS_TOKEN_INVALID'
             )
+            return
         }
 
-        socket.userId = String(socket.user.sub)
+        socket.user = user
+        socket.userId = String(user.sub)
 
         if (!rooms.has(socket.userId)) {
-            rooms.set(socket.userId, new Set())
+            rooms.set(
+                socket.userId,
+                new Set()
+            )
         }
 
         rooms.get(socket.userId).add(socket)
 
         socket.on('message', (raw) => {
             try {
+                const message = JSON.parse(
+                    raw.toString()
+                )
+
                 const clients = broadcast(
                     socket.userId,
-                    JSON.parse(raw),
+                    message,
                     socket
                 )
 
@@ -117,13 +142,16 @@ function setupRealtime(server) {
                     clients
                 }))
             } catch (error) {
-                console.log(
-                    `WebSocket message failed: ${error.message}`
-                )
+                socket.send(JSON.stringify({
+                    type: 'error',
+                    message: 'Invalid JSON message'
+                }))
             }
         })
 
-        socket.on('close', () => leaveRoom(socket))
+        socket.on('close', () => {
+            leaveRoom(socket)
+        })
     })
 }
 
