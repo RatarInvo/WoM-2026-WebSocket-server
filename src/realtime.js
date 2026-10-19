@@ -28,10 +28,7 @@ function broadcast(userId, message, sender) {
     let count = 0
 
     for (const client of room) {
-        if (
-            client !== sender &&
-            client.readyState === WebSocket.OPEN
-        ) {
+        if (client.readyState === WebSocket.OPEN) {
             client.send(data)
             count++
         }
