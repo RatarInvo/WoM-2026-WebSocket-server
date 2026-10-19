@@ -49,6 +49,7 @@ function setupRealtime(server) {
         server,
         verifyClient: ({ origin }, done) => {
             if (!allowedOrigins.includes(origin)) {
+                console.log(`Rejected origin ${JSON.stringify(origin)}, allowed: ${JSON.stringify(allowedOrigins)}`)
                 done(
                     false,
                     403,
