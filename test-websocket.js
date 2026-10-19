@@ -6,10 +6,11 @@ const jwt = require('jsonwebtoken')
 const port = process.env.PORT || 4000
 const token = jwt.sign({ sub: 'local-user' }, process.env.JWT_SECRET)
 const otherToken = jwt.sign({ sub: 'other-user' }, process.env.JWT_SECRET)
+const origin = (process.env.FRONTEND_ORIGIN || 'http://localhost:5500').split(',')[0].trim()
 
 function connect(connectionToken) {
     return new Promise((resolve, reject) => {
-        const socket = new WebSocket(`ws://localhost:${port}/?token=${connectionToken}`)
+        const socket = new WebSocket(`ws://localhost:${port}/?token=${connectionToken}`, { origin })
         socket.once('open', () => resolve(socket))
         socket.once('error', reject)
     })

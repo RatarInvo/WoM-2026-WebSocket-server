@@ -38,6 +38,11 @@ FRONTEND_ORIGIN="http://localhost:5500"
 `JWT_SECRET` must be identical to the secret used by the Login API. The JWT
 must contain a `sub` claim identifying the user.
 
+`FRONTEND_ORIGIN` is a comma-separated list of origins allowed to open a
+WebSocket connection. In production it is
+`https://people.arcada.fi,https://localhost`, where `https://localhost` is the
+origin of the Capacitor Android app.
+
 ## Installation
 
 ```bash
@@ -120,7 +125,7 @@ Malformed JSON does not close the connection. It returns:
 | `4001` | `ACCESS_TOKEN_MISSING` | No `token` query parameter was provided. |
 | `4001` | `ACCESS_TOKEN_EXPIRED` | The JWT has expired. |
 | `4001` | `ACCESS_TOKEN_INVALID` | The JWT is invalid or has no `sub` claim. |
-| `403` | `Origin not allowed` | The request origin does not match `FRONTEND_ORIGIN`. |
+| `403` | `Origin not allowed` | The request origin is not listed in `FRONTEND_ORIGIN`. |
 
 ## Testing
 

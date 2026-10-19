@@ -28,7 +28,7 @@ function broadcast(userId, message, sender) {
     let count = 0
 
     for (const client of room) {
-        if (client.readyState === WebSocket.OPEN) {
+        if (client !== sender && client.readyState === WebSocket.OPEN) {
             client.send(data)
             count++
         }
@@ -38,14 +38,17 @@ function broadcast(userId, message, sender) {
 }
 
 function setupRealtime(server) {
-    const allowedOrigin =
+    const allowedOrigins = (
         process.env.FRONTEND_ORIGIN ||
         'http://localhost:5500'
+    )
+        .split(',')
+        .map((origin) => origin.trim())
 
     const wss = new WebSocketServer({
         server,
         verifyClient: ({ origin }, done) => {
-            if (origin !== allowedOrigin) {
+            if (!allowedOrigins.includes(origin)) {
                 done(
                     false,
                     403,
