@@ -126,6 +126,9 @@ function setupRealtime(server) {
 
         rooms.get(socket.userId).add(socket)
 
+        const userName = user.name || socket.userId
+        console.log(`Connected ${userName} from ${req.headers.origin}, ${rooms.get(socket.userId).size} open for this user`)
+
         socket.on('message', (raw) => {
             try {
                 const message = JSON.parse(
@@ -150,8 +153,9 @@ function setupRealtime(server) {
             }
         })
 
-        socket.on('close', () => {
+        socket.on('close', (code) => {
             leaveRoom(socket)
+            console.log(`Closed ${userName} with code ${code}, ${rooms.get(socket.userId)?.size || 0} open for this user`)
         })
     })
 }
